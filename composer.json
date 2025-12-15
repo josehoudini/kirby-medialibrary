@@ -1,0 +1,16 @@
+{
+    "name": "josehoudini/media-library",
+    "description": "Kirby Media Library",
+    "license": "MIT",
+    "type": "kirby-plugin",
+    "version": "0.0.1",
+    "authors": [
+        {
+            "name": "Jose Houdini",
+            "email": "jose.houdini@gmail.com"
+        }
+    ],
+    "require": {
+        "getkirby/composer-installer": "^1.1"
+    }
+}
