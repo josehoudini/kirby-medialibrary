@@ -5,12 +5,12 @@ A simple Kirby panel plugin that adds a centralized media library for your site.
 ## Installation
 
 ### Download
-1. Run ``composer require josehoudini/kirby-medialibrary``
+1. Run ``composer require josehoudini/media-library``
 
 or
 
 1. Download the .zip
-2. Copy the folder into `/site/plugins/kirby-medialibrary`
+2. Copy the folder into `/site/plugins/media-library`
 
 ## Setup
 Add ``media-library`` to your panel menu in
@@ -19,7 +19,7 @@ Add ``media-library`` to your panel menu in
   // site/config/config.php
 
   return [
-      'panel' => [
+    'panel' => [
         ...
         'media-library',
       ]
@@ -34,4 +34,4 @@ This plugin is provided "as is" with no guarantee. Use it at your own risk and a
 ## License
 <a href="https://opensource.org/license/MIT" target="_blank">MIT</a>
 
-It is discouraged to use this plugin in any project that promotes racism, sexism, homophobia animal abuse, violence or any other form of hate speech.
+It is discouraged to use this plugin in any project that promotes racism, sexism, homophobia, animal abuse, violence or any other form of hate speech.
