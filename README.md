@@ -5,7 +5,7 @@ A simple Kirby panel plugin that adds a centralized media library for your site.
 ## Installation
 
 ### Download
-1. Run ``composer require josehoudini/kirby-medialibrary``
+1. Run ``composer require josehoudini/media-library``
 
 or
 
