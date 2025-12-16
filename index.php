@@ -4,27 +4,37 @@ use Kirby\Cms\App as Kirby;
 use Kirby\Cms\File;
 
 Kirby::plugin('josehoudini/media-library', [
-
 	'areas' => [
 		'media-library' => fn(Kirby $kirby) => [
-
 			'label' => 'Files',
 			'icon'  => 'folder',
 			'menu'  => true,
 			'link'  => 'media-library',
-
-			'views' => [
-				mediaView($kirby, 'media-library', 'images'),
-				mediaView($kirby, 'media-library/images', 'images'),
-				mediaView($kirby, 'media-library/videos', 'videos'),
-				mediaView($kirby, 'media-library/other', 'other'),
-			],
+			'views' => mediaViews($kirby),
 		],
 	],
 ]);
 
-/* VIEWS */
-function mediaView(Kirby $kirby, string $pattern, string $tab): array
+// FILE VIEWS
+function mediaViews(Kirby $kirby): array
+{
+	$tabs = [
+		'media-library'         => 'images',
+		'media-library/images'  => 'images',
+		'media-library/videos'  => 'videos',
+		'media-library/other'   => 'other',
+	];
+
+	$files = collectMediaFiles($kirby);
+
+	return array_map(
+		fn($pattern, $tab) => mediaView($pattern, $tab, $files),
+		array_keys($tabs),
+		$tabs
+	);
+}
+
+function mediaView(string $pattern, string $tab, array $files): array
 {
 	return [
 		'pattern' => $pattern,
@@ -33,45 +43,52 @@ function mediaView(Kirby $kirby, string $pattern, string $tab): array
 			'title'     => ucfirst($tab),
 			'props'     => [
 				'tab'    => $tab,
-				'images' => $tab === 'images' ? mediaFiles($kirby, 'image') : [],
-				'videos' => $tab === 'videos' ? mediaFiles($kirby, 'video') : [],
-				'other'	 => $tab === 'other' ? mediaFiles($kirby, 'other') : []
+				...$files,
 			],
 		],
 	];
 }
 
 /* FILE MAPPING */
-function mediaFiles(Kirby $kirby, string $type)
+function collectMediaFiles(Kirby $kirby): array
 {
-	$files = $kirby->site()->files()->add(
-		$kirby->site()->index()->files()
+	$files = $kirby->site()
+		->files()
+		->add($kirby->site()->index()->files());
+
+	$filters = [
+		'images' => fn($f) => $f->type() === 'image',
+		'videos' => fn($f) => $f->type() === 'video',
+		'other'  => fn($f) => !in_array($f->type(), ['image', 'video'], true),
+	];
+
+	return array_map(
+		fn($filter) => $files->filter($filter)->map(fn(File $file) => mapMediaFile($file))->values(),
+		$filters
 	);
-
-	if ($type === 'image' || $type === 'video') {
-		$files = $files->filterBy('type', $type);
-	} elseif ($type === 'other') {
-		$files = $files->filter(fn($file) => !in_array($file->type(), ['image', 'video']));
-	}
-
-	return $files->map(fn(File $file) => mapMediaFile($file, $file->type()))->values();
 }
 
 /* NORMALIZE DATA */
-function mapMediaFile(File $file, string $type): array
+function mapMediaFile(File $file): array
 {
+	$type = $file->type();
+	$dimensions = formatDimensions($file);
+
 	return [
 		'id'    => $file->id(),
 		'text'  => $file->filename(),
-		'image' => mediaThumb($file, $type),
+		'image' => mediaThumb($file),
 		'link'  => $file->panel()->url(true),
-		'info'  => formatSize($file->size()),
+		'info'  => ($dimensions ?  $dimensions . '<br>' : '').
+		formatSize($file->size())
 	];
 }
 
 /* ITEM THUMBNAILS */
-function mediaThumb(File $file, string $type): array
+function mediaThumb(File $file): array
 {
+	$type = $file->type();
+
 	$thumb = ['width' => 96, 'height' => 96, 'crop' => true];
 	$srcset = [
 		'1x' => $thumb,
@@ -85,24 +102,32 @@ function mediaThumb(File $file, string $type): array
 		];
 	}
 
-	if ($poster = $file->poster()->toFile()) {
+	if ($type === 'video' && ($poster = $file->poster()->toFile())) {
 		return [
 			'src'    => $poster->thumb($thumb)->url(),
 			'srcset' => $poster->srcset($srcset),
 		];
 	}
 
-	return $type === 'video' ? ['icon' => 'video'] : ['icon' => 'file'];
+	return ['icon' => $type === 'video' ? 'video' : 'file'];
 }
 
-/* MAKE FILE SIZE READABLE */
+/* FORMAT SIZE */
 function formatSize(int $bytes): string
 {
-	$kb = $bytes / 1024;
-	
-	if ($kb < 1024) {
-		return number_format($kb, 2) . ' KB';
+	return number_format($bytes / 1024 / 1024, 2) . ' MB';
+}
+
+/* FORMAT DIMENSIONS */
+function formatDimensions(File $file): string
+{
+	if ($file->type() !== 'image') {
+		return '';
 	}
-	
-	return number_format($kb / 1024, 2) . ' MB';
+
+	$dimensions = $file->dimensions();
+
+	return $dimensions->width() && $dimensions->height()
+		? $dimensions->width() . ' × ' . $dimensions->height() . ' px'
+		: '';
 }
