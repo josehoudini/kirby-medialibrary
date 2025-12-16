@@ -44,7 +44,9 @@ function mediaView(Kirby $kirby, string $pattern, string $tab): array
 /* FILE MAPPING */
 function mediaFiles(Kirby $kirby, string $type)
 {
-	$files = $kirby->site()->index()->files();
+	$files = $kirby->site()->files()->append(
+		$kirby->site()->index()->files()
+	);
 
 	if ($type === 'image' || $type === 'video') {
 		$files = $files->filterBy('type', $type);
