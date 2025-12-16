@@ -1,13 +1,13 @@
 {
     "name": "josehoudini/media-library",
-    "description": "Kirby Media Library",
+    "description": "A centralized media library for your Kirby site.",
     "license": "MIT",
     "type": "kirby-plugin",
-    "version": "0.0.1",
+    "version": "0.1.0",
     "authors": [
         {
             "name": "Jose Houdini",
-            "email": "jose.houdini@gmail.com"
+            "homepage": "https://github.com/josehoudini"
         }
     ],
     "require": {
