@@ -10,7 +10,7 @@ A simple Kirby panel plugin that adds a centralized media library for your site.
 or
 
 1. Download the .zip
-2. Copy the folder into `/site/plugins/kirby-medialibrary`
+2. Copy the folder into `/site/plugins/media-library`
 
 ## Setup
 Add ``media-library`` to your panel menu in
