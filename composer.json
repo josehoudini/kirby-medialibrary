@@ -3,7 +3,6 @@
     "description": "A centralized media library for your Kirby site.",
     "license": "MIT",
     "type": "kirby-plugin",
-    "version": "1.0.0",
     "authors": [
         {
             "name": "Jose Houdini",
