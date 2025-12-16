@@ -3,10 +3,11 @@
     "description": "A centralized media library for your Kirby site.",
     "license": "MIT",
     "type": "kirby-plugin",
+    "homepage": "https://github.com/josehoudini",
     "authors": [
         {
             "name": "Jose Houdini",
-            "homepage": "https://github.com/josehoudini"
+            "email": "jose@geminiservic.es"
         }
     ],
     "require": {
