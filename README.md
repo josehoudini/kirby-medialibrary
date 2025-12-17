@@ -17,16 +17,16 @@ or
 Add ``media-library`` to your panel menu in
 
 ```php
-  // site/config/config.php
+// site/config/config.php
 
-  return [
+return [
     'panel' => [
-      'menu => [
-        ...
-        'media-library',
-      ]
+        'menu => [
+            ...
+            'media-library',
+        ]
     ]
-  ];
+];
 ```
 
 ## Disclaimer
