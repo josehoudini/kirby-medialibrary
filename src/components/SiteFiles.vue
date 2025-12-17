@@ -5,21 +5,27 @@
     <!-- Tabs -->
     <k-tabs :tab="tab" :tabs="tabs" />
 
+    <!-- Loading state -->
+    <k-box v-if="loading" icon="loader">
+      <k-text>Loading files...</k-text>
+    </k-box>
+
     <!-- Items -->
-    <k-items
-      v-if="currentItems.length"
-      :items="paginatedItems"
-      layout="cardlets"
-    />
+    <k-items v-else-if="items.length" :items="items" layout="cardlets" />
+
+    <!-- Empty state -->
+    <k-box v-else theme="info">
+      <k-text>No {{ tab }} found</k-text>
+    </k-box>
 
     <!-- Kirby Pagination -->
     <k-pagination
       v-if="totalPages > 1"
       :page="page"
       :limit="itemsPerPage"
-      :total="currentItems.length"
+      :total="total"
       :details="true"
-      @paginate="page = $event.page"
+      @paginate="handlePaginate"
       style="margin-top: var(--spacing-12)"
     />
   </k-panel-inside>
@@ -29,14 +35,16 @@
 export default {
   props: {
     tab: { type: String, default: 'images' },
-    images: { type: Array, default: () => [] },
-    videos: { type: Array, default: () => [] },
-    other: { type: Array, default: () => [] },
   },
   data() {
     return {
+      items: [],
+      total: 0,
       page: 1,
       itemsPerPage: 30,
+      totalPages: 1,
+      loading: false,
+      stats: {},
     }
   },
   computed: {
@@ -44,62 +52,93 @@ export default {
       return [
         {
           name: 'images',
-          label: 'Images',
+          label: this.getTabLabel('images'),
           link: '/media-library/images',
           icon: 'image',
         },
         {
           name: 'videos',
-          label: 'Videos',
+          label: this.getTabLabel('videos'),
           link: '/media-library/videos',
           icon: 'video',
         },
         {
+          name: 'documents',
+          label: this.getTabLabel('documents'),
+          link: '/media-library/documents',
+          icon: 'document',
+        },
+        {
           name: 'other',
-          label: 'Other',
+          label: this.getTabLabel('other'),
           link: '/media-library/other',
           icon: 'file',
         },
       ]
     },
-    currentItems() {
-      return (
-        {
-          images: this.images,
-          videos: this.videos,
-          other: this.other,
-        }[this.tab] || []
-      )
-    },
-
     headerTitle() {
       const titles = {
         images: 'Images',
         videos: 'Videos',
-        other: 'Other',
+        documents: 'Documents',
+        other: 'Other Files',
       }
 
       const title = titles[this.tab] || 'Media Library'
-      return `${title} (${this.currentItems.length} items)`
-    },
-
-    paginatedItems() {
-      const start = (this.page - 1) * this.itemsPerPage
-      return this.currentItems.slice(start, start + this.itemsPerPage)
-    },
-
-    totalPages() {
-      return Math.ceil(this.currentItems.length / this.itemsPerPage)
+      return `${title} (${this.total})`
     },
   },
   watch: {
-    currentItems() {
-      if (this.page > this.totalPages) {
-        this.page = Math.max(this.totalPages, 1)
-      }
-    },
     tab() {
       this.page = 1
+      this.loadFiles()
+    },
+  },
+  mounted() {
+    this.loadStats()
+    this.loadFiles()
+  },
+  methods: {
+    async loadStats() {
+      try {
+        this.stats = await this.$api.get('media-library/stats')
+      } catch (error) {
+        console.error('Failed to load stats:', error)
+      }
+    },
+    getTabLabel(tab) {
+      const labels = {
+        images: 'Images',
+        videos: 'Videos',
+        documents: 'Documents',
+        other: 'Other',
+      }
+      const count = this.stats[tab]
+      return count !== undefined ? `${labels[tab]} (${count})` : labels[tab]
+    },
+    async loadFiles() {
+      this.loading = true
+
+      try {
+        const response = await this.$api.get('media-library/files', {
+          tab: this.tab,
+          page: this.page,
+          limit: this.itemsPerPage,
+        })
+
+        this.items = response.items
+        this.total = response.total
+        this.totalPages = response.pages
+      } catch (error) {
+        console.error('Failed to load files:', error)
+        this.$store.dispatch('notification/error', 'Failed to load files')
+      } finally {
+        this.loading = false
+      }
+    },
+    handlePaginate(event) {
+      this.page = event.page
+      this.loadFiles()
     },
   },
 }
