@@ -5,28 +5,15 @@
     <!-- Tabs -->
     <k-tabs :tab="tab" :tabs="tabs" />
 
-    <!-- Loading state -->
-    <k-box v-if="loading" icon="loader">
-      <k-text>Loading files...</k-text>
-    </k-box>
-
-    <!-- Items -->
-    <k-items v-else-if="items.length" :items="items" layout="cardlets" />
-
-    <!-- Empty state -->
-    <k-box v-else theme="info">
-      <k-text>No {{ tab }} found</k-text>
-    </k-box>
-
-    <!-- Kirby Pagination -->
-    <k-pagination
-      v-if="totalPages > 1"
-      :page="page"
-      :limit="itemsPerPage"
-      :total="total"
-      :details="true"
+    <!-- Collection with items, loading, empty, and pagination -->
+    <k-collection
+      :items="items"
+      :layout="'cardlets'"
+      :empty="emptyState"
+      :pagination="paginationConfig"
+      :loading="loading"
       @paginate="handlePaginate"
-      style="margin-top: var(--spacing-12)"
+      :help="'To ensure optimal performance: images up to 1 MB and videos up to 3 MB'"
     />
   </k-panel-inside>
 </template>
@@ -84,8 +71,23 @@ export default {
         other: 'Other Files',
       }
 
-      const title = titles[this.tab] || 'Media Library'
-      return `${title} (${this.total})`
+      return titles[this.tab] || 'Media Library'
+    },
+    emptyState() {
+      return {
+        icon: 'info',
+        text: `No ${this.tab} found`,
+      }
+    },
+    paginationConfig() {
+      if (this.totalPages <= 1) return false
+
+      return {
+        page: this.page,
+        limit: this.itemsPerPage,
+        total: this.total,
+        details: true,
+      }
     },
   },
   watch: {
@@ -114,7 +116,7 @@ export default {
         other: 'Other',
       }
       const count = this.stats[tab]
-      return count !== undefined ? `${labels[tab]} (${count})` : labels[tab]
+      return count !== undefined ? `${count} ${labels[tab]}` : labels[tab]
     },
     async loadFiles() {
       this.loading = true
