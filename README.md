@@ -21,10 +21,11 @@ Add ``media-library`` to your panel menu in
 
   return [
     'panel' => [
+      'menu => [
         ...
         'media-library',
       ]
-    ],
+    ]
   ];
 ```
 
