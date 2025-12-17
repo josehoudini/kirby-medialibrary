@@ -1,6 +1,7 @@
 # Kirby Media Library Plugin
 
-A simple Kirby panel plugin that adds a centralized media library for your site. It provides tabs for Images, Videos, and Other files, displays thumbnails, file info, and panel links. Perfect for managing all your site assets in one place.
+A simple plugin that adds a centralized media library for Kirby sites. <br>
+It provides tabs for Images, Videos, Documents and other files, displays thumbnails, file info, and panel links. Perfect for managing all assets in one place.
 
 ## Installation
 
@@ -30,6 +31,13 @@ Add ``media-library`` to your panel menu in
 ## Disclaimer
 
 This plugin is provided "as is" with no guarantee. Use it at your own risk and always test it yourself before using it in a production environment. If you find any issues, please create a new issue.
+
+## Roadmap
+
+- [x] Caching and pagination
+- [ ] Add sorting functionality
+- [ ] Add search functionality
+- [ ] Target and highlight "danger zone" files
 
 ## License
 <a href="https://opensource.org/license/MIT" target="_blank">MIT</a>
