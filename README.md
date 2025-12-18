@@ -20,12 +20,12 @@ Add ``media-library`` to your panel menu in
 // site/config/config.php
 
 return [
-    'panel' => [
-        'menu => [
-            ...
-            'media-library',
-        ]
+  'panel' => [
+    'menu => [
+        ...
+        'media-library',
     ]
+  ]
 ];
 ```
 
